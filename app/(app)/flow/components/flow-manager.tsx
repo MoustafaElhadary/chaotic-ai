@@ -1,3 +1,5 @@
+import { Play } from 'lucide-react'
+
 import { StepList } from '@/components/StepList'
 import {
   Accordion,
@@ -23,7 +25,7 @@ import {
   TooltipProvider,
   TooltipTrigger
 } from '@/components/ui/tooltip'
-import { Play, WebhookIcon } from 'lucide-react'
+import { WebhookIcon } from 'lucide-react'
 import { FlowFormValues, useFlowContext } from './FlowContext'
 
 interface FlowManagerProps {}
@@ -33,7 +35,6 @@ export function FlowManager({}: FlowManagerProps) {
 
   const onSubmit = (values: FlowFormValues) => {
     console.log(values)
-    // Handle form submission
   }
 
   const FlowSummary = () => {
@@ -54,7 +55,7 @@ export function FlowManager({}: FlowManagerProps) {
     // const mainPath = 'No URL'
 
     return (
-      <div className="flex items-center justify-between w-full">
+      <div className="flex items-center justify-between w-full h-full overflow-hidden">
         <span>Flow Details</span>
         <span className="text-sm text-muted-foreground">
           {name || 'Unnamed'} -
@@ -74,9 +75,9 @@ export function FlowManager({}: FlowManagerProps) {
   }
 
   return (
-    <Tabs defaultValue="design" className="h-full flex flex-col">
-      <div className="flex items-center px-4 py-2 h-[52px]">
-        <h1 className="text-xl font-bold">Manage Flow</h1>
+    <Tabs defaultValue="design" className="flex h-full flex-col">
+      <div className="flex items-center justify-between p-4 bg-background h-[52px]">
+        <h2 className="text-lg font-semibold">Manage Flow</h2>
         <TabsList className="ml-auto">
           <TabsTrigger
             value="design"
@@ -93,92 +94,87 @@ export function FlowManager({}: FlowManagerProps) {
         </TabsList>
       </div>
       <Separator />
-
-      <TabsContent
-        value="design"
-        className="flex-1 overflow-hidden flex flex-col"
-      >
-        <Accordion type="single" collapsible className="w-full">
-          <AccordionItem value="item-1">
-            <AccordionTrigger className="px-4 py-2">
-              <FlowSummary />
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pt-4 pb-2">
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-4 border-b border-zinc-200 pb-2"
-                >
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input {...field} placeholder="Enter test name" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="url"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <div className="relative">
-                            <WebhookIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+      <TabsContent value="design" asChild>
+        <>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="item-1">
+              <AccordionTrigger className="px-4 py-2">
+                <FlowSummary />
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pt-4 pb-2">
+                <Form {...form}>
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="space-y-4 border-b border-zinc-200 pb-2"
+                  >
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <Input {...field} placeholder="Enter test name" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
+                            <div className="relative">
+                              <WebhookIcon className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                {...field}
+                                placeholder="https://example.com"
+                                className="pl-8"
+                              />
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormControl>
                             <Input
                               {...field}
-                              placeholder="https://example.com"
-                              className="pl-8"
+                              placeholder="Enter test description"
                             />
-                          </div>
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="Enter test description"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </form>
-              </Form>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-        <ScrollArea className="flex-1">
-          <div className="p-4">
-            <StepList />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </form>
+                </Form>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+          <ScrollArea className="flex-grow">
+            <div className="p-4">
+              <StepList />
+            </div>
+          </ScrollArea>
+          <div className="flex-shrink-0">
+            <Separator />
+            <div className="p-4 h-18 flex items-center">
+              <Button className="w-full" onClick={form.handleSubmit(onSubmit)}>
+                <Play className="mr-2 h-4 w-4" /> Run
+              </Button>
+            </div>
           </div>
-        </ScrollArea>
-        <div className="p-4 space-y-2 border-t">
-          <Button className="w-full" onClick={form.handleSubmit(onSubmit)}>
-            <Play className="mr-2 h-4 w-4" /> Run
-          </Button>
-        </div>
+        </>
       </TabsContent>
-      <TabsContent value="settings" className="">
-        {/* TODO: will setup later */}
-        <div className="p-4 flex-1 flex flex-col">
-          <h1 className="text-xl font-bold">Settings</h1>
-          <p className="text-sm text-zinc-500">
-            Manage the flow settings here.
-          </p>
-        </div>
+      <TabsContent value="settings">
+        <div>settings</div>
       </TabsContent>
     </Tabs>
   )
