@@ -1,19 +1,20 @@
 'use server'
 
-import { createAI, getMutableAIState, streamUI } from 'ai/rsc'
+import { UpdateState } from '@/components/update-state'
+import { flowSchema, stepsSchema } from '@/lib/flow'
 import { createOpenAI, openai } from '@ai-sdk/openai'
+import { generateId, generateObject } from 'ai'
+import { createAI, getMutableAIState, streamUI } from 'ai/rsc'
 import { ReactNode } from 'react'
 import { z } from 'zod'
-import { generateId, generateObject, generateText } from 'ai'
-import { UpdateState } from '@/components/update-state'
 
 const groq = createOpenAI({
   baseURL: 'https://api.groq.com/openai/v1',
   apiKey: process.env.GROQ_API_KEY
 })
 
-// const model = groq('llama3-groq-70b-8192-tool-use-preview')
-const model = openai('gpt-4o-mini')
+const model = groq('llama3-groq-70b-8192-tool-use-preview')
+// const model = openai('gpt-4o-mini')
 
 const generateSteps = async (flow: z.infer<typeof flowSchema>) => {
   const { object } = await generateObject({
@@ -64,19 +65,6 @@ export interface ClientMessage {
   display: ReactNode
 }
 
-const stepsSchema = z.array(
-  z.object({
-    id: z.string(),
-    description: z.string()
-  })
-)
-const flowSchema = z.object({
-  name: z.string().min(1, 'Name is required'),
-  url: z.string(), // TODO: add url validation
-  description: z.string(),
-  steps: stepsSchema
-})
-
 export async function continueConversation(
   input: string,
   currentFlow: z.infer<typeof flowSchema>
@@ -93,8 +81,8 @@ export async function continueConversation(
     You are always finding the steps that are missing from the flow and are creative in your steps.
   `
   const result = await streamUI({
-    model: openai('gpt-4o-mini'),
-    // model,
+    // model: openai('gpt-4o-mini'),
+    model,
     system,
     messages: [...history.get().messages, { role: 'user', content: input }],
     text: ({ content, done }) => {

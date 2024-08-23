@@ -165,7 +165,7 @@ export function FlowManager({}: FlowManagerProps) {
           </ScrollArea>
           <div className="flex-shrink-0">
             <Separator />
-            <div className="p-4 h-18 flex items-center">
+            <div className="p-4 h-16 flex items-center">
               <Button className="w-full" onClick={form.handleSubmit(onSubmit)}>
                 <Play className="mr-2 h-4 w-4" /> Run
               </Button>

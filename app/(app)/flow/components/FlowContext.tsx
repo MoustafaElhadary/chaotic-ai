@@ -1,61 +1,49 @@
-"use client";
+'use client'
 
-import React, { createContext, useContext, useState } from "react";
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import React, { createContext, useContext, useState } from 'react'
+import { z } from 'zod'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { flowSchema } from '@/lib/flow'
 
-export const stepsSchema = z.array(
-  z.object({
-    id: z.string(),
-    description: z.string(),
-  })
-);
-export const flowSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  url: z.string().url("Invalid URL"),
-  description: z.string(),
-  steps: stepsSchema,
-});
-
-export type FlowFormValues = z.infer<typeof flowSchema>;
+export type FlowFormValues = z.infer<typeof flowSchema>
 
 interface FlowContextType {
-  form: ReturnType<typeof useForm<FlowFormValues>>;
-  showConfetti: boolean;
-  setShowConfetti: (show: boolean) => void;
-  showAlert: boolean;
-  setShowAlert: (show: boolean) => void;
-  alertText: string;
-  setAlertText: (text: string) => void;
+  form: ReturnType<typeof useForm<FlowFormValues>>
+  showConfetti: boolean
+  setShowConfetti: (show: boolean) => void
+  showAlert: boolean
+  setShowAlert: (show: boolean) => void
+  alertText: string
+  setAlertText: (text: string) => void
 }
 
-const FlowContext = createContext<FlowContextType | undefined>(undefined);
+const FlowContext = createContext<FlowContextType | undefined>(undefined)
 
 export const useFlowContext = () => {
-  const context = useContext(FlowContext);
+  const context = useContext(FlowContext)
   if (!context) {
-    throw new Error("useFlowContext must be used within a FlowProvider");
+    throw new Error('useFlowContext must be used within a FlowProvider')
   }
-  return context;
-};
+  return context
+}
 
 export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({
-  children,
+  children
 }) => {
-  const [showConfetti, setShowConfetti] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
-  const [alertText, setAlertText] = useState("");
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [showAlert, setShowAlert] = useState(false)
+  const [alertText, setAlertText] = useState('')
 
   const form = useForm<FlowFormValues>({
     resolver: zodResolver(flowSchema),
     defaultValues: {
-      name: "",
-      url: "",
-      description: "",
-      steps: [{ id: "1", description: "" }],
-    },
-  });
+      name: '',
+      url: '',
+      description: '',
+      steps: [{ id: '1', description: '' }]
+    }
+  })
 
   return (
     <FlowContext.Provider
@@ -66,10 +54,10 @@ export const FlowProvider: React.FC<{ children: React.ReactNode }> = ({
         showAlert,
         setShowAlert,
         alertText,
-        setAlertText,
+        setAlertText
       }}
     >
       {children}
     </FlowContext.Provider>
-  );
-};
+  )
+}

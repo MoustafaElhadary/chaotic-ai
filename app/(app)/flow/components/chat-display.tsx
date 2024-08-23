@@ -3,7 +3,9 @@ import { format } from 'date-fns'
 import { Bot, Settings } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 
+import { AutosizeTextarea } from '@/components/ui/autosize-textarea'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -12,20 +14,45 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Separator } from '@/components/ui/separator'
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { cn } from '@/lib/utils'
 import { generateId } from 'ai'
 import { useActions, useUIState } from 'ai/rsc'
 import { ClientMessage } from '../actions'
 import { useFlowContext } from './FlowContext'
+
+const INITIAL_QUESTIONS = [
+  'Test the login flow',
+  'Test the form submission flow',
+  'Test the payment flow'
+]
+
+function IconArrowElbow({ className, ...props }: React.ComponentProps<'svg'>) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 256 256"
+      fill="currentColor"
+      className={cn('size-4', className)}
+      {...props}
+    >
+      <path d="M200 32v144a8 8 0 0 1-8 8H67.31l34.35 34.34a8 8 0 0 1-11.32 11.32l-48-48a8 8 0 0 1 0-11.32l48-48a8 8 0 0 1 11.32 11.32L67.31 168H184V32a8 8 0 0 1 16 0Z" />
+    </svg>
+  )
+}
 
 export function ChatDisplay() {
   const [input, setInput] = useState('')
   const [conversation, setConversation] = useUIState()
   const { continueConversation } = useActions()
   const chatContainerRef = useRef<HTMLDivElement>(null)
-  const { setShowConfetti, setShowAlert, setAlertText, form } = useFlowContext()
+  const { form } = useFlowContext()
 
   const scrollToBottom = (smooth = false) => {
     if (chatContainerRef.current?.lastElementChild) {
@@ -67,11 +94,16 @@ export function ChatDisplay() {
     }
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handleSend()
     }
+  }
+
+  const handleBadgeClick = (text: string) => {
+    setInput(text)
+    handleSend()
   }
 
   return (
@@ -93,7 +125,7 @@ export function ChatDisplay() {
         </Dialog>
       </div>
       <Separator />
-      <ScrollArea className="flex-grow p-4 space-y-8 md:space-y-10">
+      <ScrollArea className="flex-grow p-4">
         <div ref={chatContainerRef} className="w-full">
           {conversation.map((message: ClientMessage) => (
             <div
@@ -140,23 +172,56 @@ export function ChatDisplay() {
         </div>
       </ScrollArea>
       <div className="flex-shrink-0">
-        <Separator />
-        <div className="p-4">
+        <div>
+          <div className="p-4">
+            {conversation.length === 0 && (
+              <div className="flex flex-wrap justify-end gap-2 mb-2">
+                {INITIAL_QUESTIONS.map((question, index) => (
+                  <Badge
+                    key={index}
+                    variant="secondary"
+                    className="cursor-pointer hover:bg-zinc-200"
+                    onClick={() => handleBadgeClick(question)}
+                  >
+                    {question}
+                  </Badge>
+                ))}
+              </div>
+            )}
+          </div>
+          <Separator />
           <form
             onSubmit={e => {
               e.preventDefault()
               handleSend()
             }}
-            className="flex space-x-2"
+            className="relative px-3 py-3"
           >
-            <Input
+            <AutosizeTextarea
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Type your message..."
-              className="flex-grow"
+              placeholder={'Send a message...'}
+              className="w-full bg-transparent placeholder:text-zinc-900 resize-none focus-within:outline-none sm:text-sm "
+              maxHeight={200}
+              minHeight={42}
             />
-            <Button type="submit">Send</Button>
+            <div className="absolute right-4 top-[13px] sm:right-4">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="submit"
+                    size="icon"
+                    disabled={input.trim() === ''}
+                    className="bg-transparent shadow-none text-zinc-950 rounded-full hover:bg-zinc-200"
+                  >
+                    <IconArrowElbow />
+                    <span className="sr-only">Send message</span>
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>Send message</TooltipContent>
+              </Tooltip>
+            </div>
           </form>
         </div>
       </div>

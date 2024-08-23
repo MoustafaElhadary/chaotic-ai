@@ -1,10 +1,8 @@
 'use client'
+import { flowSchema } from '@/lib/flow'
 import { useEffect } from 'react'
 import { z } from 'zod'
-import {
-  flowSchema,
-  useFlowContext
-} from '../app/(app)/flow/components/FlowContext'
+import { useFlowContext } from '../app/(app)/flow/components/FlowContext'
 import {
   Accordion,
   AccordionContent,
