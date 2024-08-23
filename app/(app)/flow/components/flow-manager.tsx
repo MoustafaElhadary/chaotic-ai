@@ -1,69 +1,81 @@
-import { StepList } from "@/components/StepList";
+import { StepList } from '@/components/StepList'
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import { Button } from "@/components/ui/button";
+  AccordionTrigger
+} from '@/components/ui/accordion'
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
   FormField,
   FormItem,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+  FormMessage
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { Separator } from '@/components/ui/separator'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Play, WebhookIcon } from "lucide-react";
-import { FlowFormValues, useFlowContext } from "./FlowContext";
+  TooltipTrigger
+} from '@/components/ui/tooltip'
+import { Play, WebhookIcon } from 'lucide-react'
+import { FlowFormValues, useFlowContext } from './FlowContext'
 
 interface FlowManagerProps {}
 
 export function FlowManager({}: FlowManagerProps) {
-  const { form } = useFlowContext();
+  const { form } = useFlowContext()
 
   const onSubmit = (values: FlowFormValues) => {
-    console.log(values);
+    console.log(values)
     // Handle form submission
-  };
+  }
 
   const FlowSummary = () => {
-    const name = form.watch("name");
-    const url = form.watch("url");
-    const mainPath = url ? new URL(url).hostname : "No URL";
+    const name = form.watch('name')
+    const url = form.watch('url')
+    const mainPath = url
+      ? (() => {
+          try {
+            const parsedUrl = new URL(
+              url.startsWith('http') ? url : `https://${url}`
+            )
+            return parsedUrl.hostname
+          } catch (error) {
+            return 'Invalid URL'
+          }
+        })()
+      : 'No URL'
+    // const mainPath = 'No URL'
 
     return (
       <div className="flex items-center justify-between w-full">
         <span>Flow Details</span>
         <span className="text-sm text-muted-foreground">
-          {name || "Unnamed"} -
+          {name || 'Unnamed'} -
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="underline decoration-dotted">{mainPath}</span>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{url || "No URL"}</p>
+                <p>{url || 'No URL'}</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
         </span>
       </div>
-    );
-  };
+    )
+  }
 
   return (
     <Tabs defaultValue="design" className="h-full flex flex-col">
-      <div className="flex items-center px-4 py-2">
+      <div className="flex items-center px-4 py-2 h-[52px]">
         <h1 className="text-xl font-bold">Manage Flow</h1>
         <TabsList className="ml-auto">
           <TabsTrigger
@@ -169,5 +181,5 @@ export function FlowManager({}: FlowManagerProps) {
         </div>
       </TabsContent>
     </Tabs>
-  );
+  )
 }

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers";
 
 import { FlowDashboard } from "./components/flow-dashboard";
+import { AI } from "./actions";
 
 export default function FlowPage() {
   const layout = cookies().get("react-resizable-panels:layout:mail");
@@ -8,7 +9,7 @@ export default function FlowPage() {
   const defaultLayout = layout ? JSON.parse(layout.value) : undefined;
 
   return (
-    <>
+    <AI>
       <div className="sm:hidden">
         {/* TODO: Mobile view */}
         <h1>Mobile view</h1>
@@ -20,6 +21,6 @@ export default function FlowPage() {
       <div className="hidden flex-col sm:flex">
         <FlowDashboard defaultLayout={defaultLayout} />
       </div>
-    </>
+    </AI>
   );
 }

@@ -76,7 +76,7 @@ export function SortableItem({
               onChange={(e) => updateStep(step.id, e.target.value)}
               placeholder={`Describe step ${index + 1}`}
               onPointerDown={(e) => e.stopPropagation()}
-              className="pr-10"
+              className="pr-10 min-h-[5px]"
             />
             <Button
               variant="ghost"

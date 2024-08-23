@@ -1,18 +1,21 @@
+"use client";
+
 import React, { createContext, useContext, useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
+export const stepsSchema = z.array(
+  z.object({
+    id: z.string(),
+    description: z.string(),
+  })
+);
 export const flowSchema = z.object({
   name: z.string().min(1, "Name is required"),
   url: z.string().url("Invalid URL"),
   description: z.string(),
-  steps: z.array(
-    z.object({
-      id: z.string(),
-      description: z.string(),
-    })
-  ),
+  steps: stepsSchema,
 });
 
 export type FlowFormValues = z.infer<typeof flowSchema>;
