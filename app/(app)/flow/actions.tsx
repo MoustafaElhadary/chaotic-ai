@@ -81,8 +81,8 @@ export async function continueConversation(
     You are always finding the steps that are missing from the flow and are creative in your steps.
   `
   const result = await streamUI({
-    // model: openai('gpt-4o-mini'),
-    model,
+    model: openai('gpt-4o-mini'),
+    // model,
     system,
     messages: [...history.get().messages, { role: 'user', content: input }],
     text: ({ content, done }) => {

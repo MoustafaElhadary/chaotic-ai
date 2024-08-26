@@ -1,13 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle
-} from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   Carousel,
   CarouselContent,
@@ -18,6 +11,7 @@ import {
 } from '@/components/ui/carousel'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import React, { useEffect, useState } from 'react'
 
 const images = [
   'https://placehold.co/900x800/png',
