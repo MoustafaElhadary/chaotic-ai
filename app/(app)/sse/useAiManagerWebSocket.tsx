@@ -47,19 +47,17 @@ export function useAiManagerWebSocket() {
     }
   }, [])
 
-  const setupSocket = useCallback(
-    (sessionId: string) => {
-      cleanupSocket()
-
+  const setupSocket = useCallback(() => {
+    if (!socketRef.current) {
+      console.log('Setting up WebSocket connection')
       const socket = io(BACKEND_URL)
       socketRef.current = socket
 
       socket.on('connect', () => {
         console.log('WebSocket connection opened')
-        setIsRunning(true)
       })
 
-      socket.on(`aiManager:${sessionId}`, (update: AiManagerUpdate) => {
+      socket.on('aiManagerUpdate', (update: AiManagerUpdate) => {
         console.log('Received WebSocket event:', update)
 
         setTask(prevTask => {
@@ -67,73 +65,68 @@ export function useAiManagerWebSocket() {
           return { ...prevTask, updates: [...prevTask.updates, update] }
         })
 
-        if (update.type === 'debugUrl') {
+        if (update.type === 'start') {
+          setIsRunning(true)
+        } else if (update.type === 'debugUrl') {
           setIframeUrl(update.url || '')
         } else if (
-          ['complete', 'maxStepsReached', 'stopped'].includes(update.type)
+          ['complete', 'maxStepsReached', 'stopped', 'error'].includes(update.type)
         ) {
           setIsRunning(false)
+          if (update.type === 'stopped') {
+            setTask(prevTask => prevTask ? { ...prevTask, status: 'stopped' } : null)
+          }
           cleanupSocket()
         }
       })
-
-      socket.on(`aiManager:${sessionId}:error`, (error: any) => {
-        console.error('WebSocket error:', error)
-        setIsRunning(false)
-        cleanupSocket()
-      })
-
-      socket.on(`aiManager:${sessionId}:complete`, () => {
-        setIsRunning(false)
-        cleanupSocket()
-      })
-    },
-    [cleanupSocket]
-  )
+    }
+  }, [cleanupSocket])
 
   const startAiManager = useCallback(
-    async (url: string, taskTitle: string, taskDescription: string) => {
-      const response = await fetch(`${BACKEND_URL}/ai-manager/start`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+    (url: string, taskTitle: string, taskDescription: string) => {
+      setupSocket()
+
+      if (socketRef.current) {
+        const params = {
           url,
           taskTitle,
           taskDescription,
           maxSteps: 10,
           useBrowserBase: true
-        })
-      })
-      if (response.ok) {
-        const data = await response.json()
-        const newTask: Task = {
-          id: Date.now(),
-          url,
-          title: taskTitle,
-          description: taskDescription,
-          status: 'running',
-          sessionId: data.sessionId,
-          updates: []
         }
-        setTask(newTask)
-        setIsRunning(true)
-        setupSocket(data.sessionId)
+
+        socketRef.current.emit(
+          'startAiManager',
+          params,
+          (response: { sessionId: string }) => {
+            console.log('startAiManager response:', response)
+            const newTask: Task = {
+              id: Date.now(),
+              url,
+              title: taskTitle,
+              description: taskDescription,
+              status: 'running',
+              sessionId: response.sessionId,
+              updates: []
+            }
+            setTask(newTask)
+            setIsRunning(true)
+          }
+        )
       } else {
-        console.error('Failed to start AI Manager')
+        console.error('Failed to start AI Manager: WebSocket not connected')
       }
     },
     [setupSocket]
   )
 
-  const stopAiManager = useCallback(async () => {
-    if (!task || !task.sessionId) return
-
-    socketRef.current?.emit('stopAiManager', task.sessionId)
-    setTask(prevTask => (prevTask ? { ...prevTask, status: 'stopped' } : null))
-    setIsRunning(false)
-    setIframeUrl('')
-    cleanupSocket()
-  }, [task, cleanupSocket])
+  const stopAiManager = useCallback(() => {
+    if (socketRef.current && task?.sessionId) {
+      socketRef.current.emit('stopAiManager', task.sessionId)
+    } else {
+      console.error('Failed to stop AI Manager: WebSocket not connected or no active task')
+    }
+  }, [task])
 
   useEffect(() => {
     return () => {

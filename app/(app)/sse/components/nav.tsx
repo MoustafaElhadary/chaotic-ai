@@ -33,33 +33,35 @@ export function Nav({ links, isCollapsed }: NavProps) {
         <TooltipProvider>
           {links.map((link, index) =>
             isCollapsed ? (
-              <Tooltip key={index} delayDuration={0}>
-                <TooltipTrigger asChild>
-                  <Link
-                    href={link.url}
-                    className={cn(
-                      buttonVariants({ variant: link.variant, size: 'icon' }),
-                      'h-9 w-9',
-                      link.variant === 'default' &&
-                        'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white'
-                    )}
+              <TooltipProvider key={index}>
+                <Tooltip delayDuration={0}>
+                  <TooltipTrigger asChild>
+                    <Link
+                      href={link.url}
+                      className={cn(
+                        buttonVariants({ variant: link.variant, size: 'icon' }),
+                        'h-9 w-9',
+                        link.variant === 'default' &&
+                          'dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white'
+                      )}
+                    >
+                      <link.icon className="h-4 w-4" />
+                      <span className="sr-only">{link.title}</span>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent
+                    side="right"
+                    className="flex items-center gap-4"
                   >
-                    <link.icon className="h-4 w-4" />
-                    <span className="sr-only">{link.title}</span>
-                  </Link>
-                </TooltipTrigger>
-                <TooltipContent
-                  side="right"
-                  className="flex items-center gap-4"
-                >
-                  {link.title}
-                  {link.label && (
-                    <span className="ml-auto text-muted-foreground">
-                      {link.label}
-                    </span>
-                  )}
-                </TooltipContent>
-              </Tooltip>
+                    {link.title}
+                    {link.label && (
+                      <span className="ml-auto text-muted-foreground">
+                        {link.label}
+                      </span>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             ) : (
               <Link
                 key={index}

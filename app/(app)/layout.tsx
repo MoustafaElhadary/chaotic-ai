@@ -1,23 +1,23 @@
-import { Toaster } from "@/components/ui/sonner";
-import { checkAuth } from "@/lib/auth/utils";
-import TrpcProvider from "@/lib/trpc/Provider";
-import { ClerkProvider } from "@clerk/nextjs";
-import { cookies } from "next/headers";
+import { Toaster } from '@/components/ui/sonner'
+import { checkAuth } from '@/lib/auth/utils'
+import TrpcProvider from '@/lib/trpc/Provider'
+import { ClerkProvider } from '@clerk/nextjs'
+import { cookies } from 'next/headers'
 
-import AppHeader from "@/components/AppHeader";
+import AppHeader from '@/components/AppHeader'
 
 export default async function AppLayout({
-  children,
+  children
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
-  await checkAuth();
+  await checkAuth()
   return (
     <ClerkProvider>
       <TrpcProvider cookies={cookies().toString()}>
         <>{children}</>
-        <Toaster richColors />
+        <Toaster richColors position="top-right" expand={true} />
       </TrpcProvider>
     </ClerkProvider>
-  );
+  )
 }
